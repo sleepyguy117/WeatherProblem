@@ -1,8 +1,8 @@
 package com.problem.weather.ui
 
 import android.Manifest
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,12 +13,11 @@ import com.problem.weather.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
-import timber.log.Timber
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
-    private val homeViewModel : MainViewModel by viewModels()
+    private val homeViewModel: MainViewModel by viewModels()
 
     private lateinit var binding: ActivityMainBinding
 
@@ -38,7 +37,13 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
 
         binding.detailed.setOnClickListener {
-            startActivity(Intent(this@MainActivity, DetailedActivity::class.java))
+            if (homeViewModel.lat != null && homeViewModel.lon != null) {
+                DetailedActivity.openDetails(
+                    this@MainActivity,
+                    homeViewModel.lat!!,
+                    homeViewModel.lon!!
+                )
+            }
         }
 
         checkPermissionsAndRefreshWeather()
@@ -48,8 +53,15 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         val locationClient = LocationServices.getFusedLocationProviderClient(this)
 
         locationClient.lastLocation.addOnSuccessListener {
-            homeViewModel.fetchWeather()
-            Toast.makeText(this@MainActivity, "lat = ${it.latitude}, lon = ${it.longitude}", Toast.LENGTH_SHORT).show()
+            homeViewModel.lat = it.latitude
+            homeViewModel.lon = it.longitude
+
+            homeViewModel.fetchCurrentDay()
+            Toast.makeText(
+                this@MainActivity,
+                "lat = ${it.latitude}, lon = ${it.longitude}",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
@@ -57,8 +69,10 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
         if (hasRequiredPermissions()) {
             getGPSAndFetchWeather()
         } else {
-            EasyPermissions.requestPermissions(this@MainActivity, resources.getString(R.string.permission_rational),
-                1, *getRequiredPermissions())
+            EasyPermissions.requestPermissions(
+                this@MainActivity, resources.getString(R.string.permission_rational),
+                1, *getRequiredPermissions()
+            )
         }
     }
 
@@ -81,12 +95,12 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
 
     override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
-        Timber.v("permissions granted")
+        Log.d("test", "permissions granted")
         getGPSAndFetchWeather()
     }
 
     override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
-        Timber.v("permissions denied")
+        Log.d("test", "permissions denied")
         if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
             AppSettingsDialog.Builder(this).build().show()
         }

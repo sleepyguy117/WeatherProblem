@@ -12,5 +12,5 @@ interface WeatherService {
 
     //  for some reason the 3.0 onecall gives a 401 error.
     @GET("/data/2.5/onecall")
-    suspend fun getOneCall(@Query("lat") lat: Float = 34.0522f, @Query("lon") lon: Float = 118.2437f, @Query("exclude") exclude: String = "minutely", @Query("appid") appId: String = Constants.OPENWEATHER_KEY): Response<OneCallResponse>
+    suspend fun getOneCall(@Query("lat") lat: Double = 34.0522, @Query("lon") lon: Double = 118.2437, @Query("exclude") exclude: String = "minutely", @Query("appid") appId: String = Constants.OPENWEATHER_KEY): Response<OneCallResponse>
 }
