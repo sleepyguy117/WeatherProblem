@@ -1,9 +1,11 @@
 package com.problem.weather.ui
 
-import android.location.Location
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.problem.weather.data.CurrentDayWeather
 import com.problem.weather.data.WeatherRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,15 +19,10 @@ class MainViewModel @Inject constructor(private val weatherRepository: WeatherRe
     var lat: Double? = null
     var lon: Double? = null
 
-    fun fetchWeather() {
-        viewModelScope.launch(Dispatchers.IO) {
-            val response = weatherRepository.getWeather("Los Angeles, United States")
-            response?.let {
-                Log.d("test", "temp = ${it.main.temp}")
-            } ?: run {
-                Log.d("test", "error weather")
-            }
-        }
+    private val _weather = MutableLiveData<CurrentDayWeather>()
+
+    fun weatherLiveData(): LiveData<CurrentDayWeather> {
+        return _weather
     }
 
     fun fetchCurrentDay() {
@@ -33,7 +30,7 @@ class MainViewModel @Inject constructor(private val weatherRepository: WeatherRe
             viewModelScope.launch(Dispatchers.IO) {
                 val response = weatherRepository.getCurrentDay(lat!!, lon!!)
                 response?.let {
-
+                    _weather.postValue(it)
                     Log.d("test", "current day weather success")
                 } ?: run {
                     Log.d("test", "error current day")

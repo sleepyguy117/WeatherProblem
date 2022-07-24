@@ -6,13 +6,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.LocationServices
 import com.problem.weather.R
 import com.problem.weather.databinding.ActivityMainBinding
+import com.problem.weather.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
+import java.time.ZonedDateTime
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
@@ -30,24 +34,46 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
         setContentView(view)
 
+        setClickListeners()
+        setObservers()
 
-        Glide.with(this@MainActivity)
-            .load("https://openweathermap.org/img/wn/10d@2x.png")
-            .into(binding.image)
-
-
-        binding.detailed.setOnClickListener {
-            if (homeViewModel.lat != null && homeViewModel.lon != null) {
-                DetailedActivity.openDetails(
-                    this@MainActivity,
-                    homeViewModel.lat!!,
-                    homeViewModel.lon!!
-                )
-            }
-        }
+        binding.dayAndTime.text = Utils.zoneDateTimeToString(ZonedDateTime.now())
 
         checkPermissionsAndRefreshWeather()
     }
+
+    private fun setObservers() {
+
+        homeViewModel.weatherLiveData().observe(this@MainActivity) {
+
+            with(binding) {
+                layoutCurrentDay.isVisible = true
+                highValue.text = String.format(resources.getString(R.string.temperature_format, it.hi.roundToInt()))
+                lowValue.text = String.format(resources.getString(R.string.temperature_format, it.low.roundToInt()))
+                description.text = it.description
+
+                Glide.with(this@MainActivity)
+                    .load(Utils.makeIconUrl(it.icon))
+                    .into(icon)
+            }
+        }
+    }
+
+    private fun setClickListeners() {
+
+        with(binding) {
+            layoutCurrentDay.setOnClickListener {
+                if (homeViewModel.lat != null && homeViewModel.lon != null) {
+                    DetailedActivity.openDetails(
+                        this@MainActivity,
+                        homeViewModel.lat!!,
+                        homeViewModel.lon!!
+                    )
+                }
+            }
+        }
+    }
+
 
     private fun getGPSAndFetchWeather() {
         val locationClient = LocationServices.getFusedLocationProviderClient(this)

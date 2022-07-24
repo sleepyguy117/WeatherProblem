@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">WeatherProblem</string>
     <string name="permission_rational">We need permission to use GPS to locate your city.</string>
+    <string name="high_label">High:</string>
+    <string name="low_label">Low:</string>
+    <string name="temperature_format">%s F</string>
 </resources>

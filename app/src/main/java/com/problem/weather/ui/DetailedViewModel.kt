@@ -1,6 +1,5 @@
 package com.problem.weather.ui
 
-import android.location.Location
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

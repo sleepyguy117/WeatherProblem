@@ -17,7 +17,7 @@ class WeatherRepository @Inject constructor(private val weatherService: WeatherS
         return "$lat,$lon"
     }
 
-    suspend fun getCurrentDay(lat: Double, lon: Double): OneCallResponse.Weather? {
+    suspend fun getCurrentDay(lat: Double, lon: Double): CurrentDayWeather? {
 
         val key = makeKey(lat, lon)
 
@@ -42,14 +42,16 @@ class WeatherRepository @Inject constructor(private val weatherService: WeatherS
             }
         }
 
-        return data?.let {
+        return data?.let { theData ->
 
             // find the day
-            val day = it.daily.find { day ->
+            val day = theData.daily.find { day ->
                 Utils.isToday(day.dt)
             }
 
-            day?.weather?.get(0)
+            day?.let {
+              CurrentDayWeather(it.temp.max, it.temp.min, it.weather[0].icon, it.weather[0].description)
+            }
         }
     }
 
@@ -78,8 +80,8 @@ class WeatherRepository @Inject constructor(private val weatherService: WeatherS
             }
         }
 
-        return data?.let {
-            it.hourly.map {  hour ->
+        return data?.let { theData ->
+            theData.hourly.map {  hour ->
                 hour.weather[0]
             }
         }

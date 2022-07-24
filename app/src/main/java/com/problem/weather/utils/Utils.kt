@@ -1,8 +1,10 @@
 package com.problem.weather.utils
 
+import com.problem.weather.Constants
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 object Utils {
 
@@ -19,5 +21,13 @@ object Utils {
 
 
         return now == dayOfStamp
+    }
+
+    fun makeIconUrl(icon: String) = Constants.OPENWEATHER_ICON_PATH + icon + "@2x.png"
+
+    fun zoneDateTimeToString(zdt: ZonedDateTime): String {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a")
+
+        return zdt.format(dateTimeFormatter)
     }
 }
