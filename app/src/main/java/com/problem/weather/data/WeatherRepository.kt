@@ -55,7 +55,7 @@ class WeatherRepository @Inject constructor(private val weatherService: WeatherS
         }
     }
 
-    suspend fun getHours(lat: Double, lon: Double): List<OneCallResponse.Weather>? {
+    suspend fun getHours(lat: Double, lon: Double): List<WeatherHours>? {
 
         val key = makeKey(lat, lon)
 
@@ -82,7 +82,7 @@ class WeatherRepository @Inject constructor(private val weatherService: WeatherS
 
         return data?.let { theData ->
             theData.hourly.map {  hour ->
-                hour.weather[0]
+                WeatherHours(hour.dt, hour.temp, hour.weather[0].icon, hour.weather[0].description)
             }
         }
     }

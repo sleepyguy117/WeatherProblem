@@ -20,7 +20,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/layout_current_day"
         android:visibility="gone"
-        android:background="@color/light_gray"
+        tools:visibility="visible"
+        android:background="@drawable/weather_data_bg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"

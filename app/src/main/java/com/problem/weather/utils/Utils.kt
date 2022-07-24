@@ -2,6 +2,7 @@ package com.problem.weather.utils
 
 import com.problem.weather.Constants
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -29,5 +30,17 @@ object Utils {
         val dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy hh:mm:ss a")
 
         return zdt.format(dateTimeFormatter)
+    }
+
+    fun isTimeStampInPast(timeStamp: Long) = ZonedDateTime.now().toEpochSecond() > timeStamp
+
+    fun timestampToHour(timeStamp: Long): String {
+        val formatter = DateTimeFormatter.ofPattern("h:mm a")
+
+        return formatter.format(
+            LocalDateTime.ofInstant(
+                Instant.ofEpochSecond(timeStamp), ZoneId.systemDefault()
+            )
+        )
     }
 }

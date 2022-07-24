@@ -83,11 +83,6 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
             homeViewModel.lon = it.longitude
 
             homeViewModel.fetchCurrentDay()
-            Toast.makeText(
-                this@MainActivity,
-                "lat = ${it.latitude}, lon = ${it.longitude}",
-                Toast.LENGTH_SHORT
-            ).show()
         }
     }
 
