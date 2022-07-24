@@ -1,15 +1,20 @@
 package com.problem.weather.ui
 
+import android.Manifest
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
+import com.problem.weather.R
 import com.problem.weather.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
+import pub.devrel.easypermissions.AppSettingsDialog
+import pub.devrel.easypermissions.EasyPermissions
+import timber.log.Timber
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
     private val homeViewModel : MainViewModel by viewModels()
 
@@ -34,8 +39,44 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, DetailedActivity::class.java))
         }
 
+        checkPermissionsAndRefreshWeather()
+    }
+
+    private fun checkPermissionsAndRefreshWeather() {
+        if (hasRequiredPermissions()) {
+            homeViewModel.fetchWeather()
+        } else {
+            EasyPermissions.requestPermissions(this@MainActivity, resources.getString(R.string.permission_rational),
+                1, *getRequiredPermissions())
+        }
+    }
+
+    private fun getRequiredPermissions(): Array<String> {
+        return arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION)
+    }
+
+    private fun hasRequiredPermissions() =
+        EasyPermissions.hasPermissions(this, *getRequiredPermissions())
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    override fun onPermissionsGranted(requestCode: Int, perms: MutableList<String>) {
+        Timber.v("permissions granted")
         homeViewModel.fetchWeather()
+    }
 
-
+    override fun onPermissionsDenied(requestCode: Int, perms: MutableList<String>) {
+        Timber.v("permissions denied")
+        if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
+            AppSettingsDialog.Builder(this).build().show()
+        }
     }
 }

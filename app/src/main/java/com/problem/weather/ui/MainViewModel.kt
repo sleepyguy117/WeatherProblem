@@ -4,36 +4,26 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.problem.weather.Test
+import com.problem.weather.data.WeatherRepository
 import com.problem.weather.network.WeatherService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor() : ViewModel() {
-
-
-    @Inject
-    lateinit var weatherService: WeatherService
+class MainViewModel @Inject constructor(private val weatherRepository: WeatherRepository) : ViewModel() {
 
     @Inject lateinit var test: Test
 
     fun fetchWeather() {
-
-
         viewModelScope.launch(Dispatchers.IO) {
-
-            val response = weatherService.getWeather("Los Angeles, Unites States")
-
-            if (response.isSuccessful) {
-
-                Log.d("test", response.body() ?: "no body")
-
-            }
-            else {
-
-                Log.d("test", response.body() ?: "error")
+            val response = weatherRepository.getWeather("Los Angeles, United States")
+            response?.let {
+                Timber.d("temp = ${it.main.temp}")
+            } ?: run {
+                Timber.d("error fetching weather")
             }
         }
     }

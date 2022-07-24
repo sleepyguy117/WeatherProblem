@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WeatherProblem</string>
+    <string name="permission_rational">We need permission to use GPS to locate your city.</string>
 </resources>
