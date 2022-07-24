@@ -10,6 +10,7 @@ import androidx.core.view.isVisible
 import com.bumptech.glide.Glide
 import com.google.android.gms.location.LocationServices
 import com.problem.weather.R
+import com.problem.weather.data.Lce
 import com.problem.weather.databinding.ActivityMainBinding
 import com.problem.weather.utils.Utils
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,15 +47,40 @@ class MainActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks {
 
         homeViewModel.weatherLiveData().observe(this@MainActivity) {
 
-            with(binding) {
-                layoutCurrentDay.isVisible = true
-                highValue.text = String.format(resources.getString(R.string.temperature_format, it.hi.roundToInt()))
-                lowValue.text = String.format(resources.getString(R.string.temperature_format, it.low.roundToInt()))
-                description.text = it.description
+            when (it) {
 
-                Glide.with(this@MainActivity)
-                    .load(Utils.makeIconUrl(it.icon))
-                    .into(icon)
+                is Lce.Loading -> {
+                    binding.loading.isVisible = true
+                }
+
+                is Lce.Content -> {
+                    binding.loading.isVisible = false
+                    val data = it.data
+                    with(binding) {
+                        layoutCurrentDay.isVisible = true
+                        highValue.text = String.format(
+                            resources.getString(
+                                R.string.temperature_format,
+                                data.hi.roundToInt()
+                            )
+                        )
+                        lowValue.text = String.format(
+                            resources.getString(
+                                R.string.temperature_format,
+                                data.low.roundToInt()
+                            )
+                        )
+                        description.text = data.description
+
+                        Glide.with(this@MainActivity)
+                            .load(Utils.makeIconUrl(data.icon))
+                            .into(icon)
+                    }
+                }
+                is Lce.Error -> {
+                    binding.loading.isVisible = false
+                    Toast.makeText(this@MainActivity, "there was an error", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

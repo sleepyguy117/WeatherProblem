@@ -25,7 +25,7 @@ class WeatherRepository @Inject constructor(private val weatherService: WeatherS
 
         // check cache, if its too old don't use it
         var data: OneCallResponse? = cachedResponse?.run {
-            if (current.dt + MAX_RESPONSE_AGE_SEC < ZonedDateTime.now().toEpochSecond()) {
+            if (current.dt + MAX_RESPONSE_AGE_SEC > ZonedDateTime.now().toEpochSecond()) {
                 cachedResponse
             } else null
         }
@@ -63,7 +63,7 @@ class WeatherRepository @Inject constructor(private val weatherService: WeatherS
 
         // check cache, if its too old don't use it
         var data: OneCallResponse? = cachedResponse?.run {
-            if (current.dt + MAX_RESPONSE_AGE_SEC < ZonedDateTime.now().toEpochSecond()) {
+            if (current.dt + MAX_RESPONSE_AGE_SEC > ZonedDateTime.now().toEpochSecond()) {
                 cachedResponse
             } else null
         }

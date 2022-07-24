@@ -7,9 +7,11 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.problem.weather.R
+import com.problem.weather.data.Lce
 import com.problem.weather.databinding.ActivityDetailedBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -45,6 +47,11 @@ class DetailedActivity : AppCompatActivity() {
         detailedViewModel.fetchHours()
     }
 
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
     private fun setupRecyclerView() {
 
         with(binding) {
@@ -67,7 +74,23 @@ class DetailedActivity : AppCompatActivity() {
 
     private fun setObservers() {
         detailedViewModel.weatherHoursLiveData().observe(this@DetailedActivity) {
-            weatherHoursAdapter.replaceData(it)
+
+            when (it) {
+                is Lce.Loading -> {
+                    binding.loading.isVisible = true
+                }
+
+                is Lce.Content -> {
+                    binding.loading.isVisible = false
+                    weatherHoursAdapter.replaceData(it.data)
+                }
+                is Lce.Error -> {
+                    binding.loading.isVisible = false
+                    Toast.makeText(this@DetailedActivity, "there was an error", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+
         }
     }
 
