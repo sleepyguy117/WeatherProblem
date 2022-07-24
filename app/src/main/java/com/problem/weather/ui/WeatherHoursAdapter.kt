@@ -17,7 +17,7 @@ class WeatherHoursAdapter: RecyclerView.Adapter<WeatherHoursAdapter.WeatherHourV
 
     class WeatherHourViewHolder(private val binding: ItemHourWeatherBinding): RecyclerView.ViewHolder(binding.root) {
 
-        val context = binding.root.context
+        private val context = binding.root.context
 
         fun bind(data: WeatherHours) {
             with(binding) {
